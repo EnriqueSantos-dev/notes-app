@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  postgresql:
+    image: postgres
+    container_name: postgresql
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: notes_app
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 54320:5432
+
+volumes:
+  pgdata:
