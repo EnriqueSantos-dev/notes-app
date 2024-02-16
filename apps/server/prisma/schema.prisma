@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String
+  hash         String
+  isActive     Boolean
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  notes        Note[]
+  notebooks    Notebook[]
+  subscription Subscription?
+  limit        Limit?
+  sharedNotes  SharedNote[]
+
+  @@map("users")
+}
+
+model Subscription {
+  id                       String   @id @default(cuid())
+  stripeCustomerId         String   @unique @map("stripe_customer_id")
+  stripeSubscriptionId     String   @unique @map("stripe_subscription_id")
+  stripePriceId            String   @unique @map("stripe_price_id")
+  stripeCurrentPeriodStart DateTime @map("stripe_current_period_start")
+  stripeCurrentPeriodEnd   DateTime @map("stripe_current_period_end")
+  isActive                 Boolean  @map("is_active")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+  userId                   String   @unique @map("user_id")
+  user                     User     @relation(fields: [userId], references: [id])
+
+  @@map("subscriptions")
+}
+
+model Limit {
+  id              String @id @default(cuid())
+  userId          String @unique @map("user_id")
+  noteCount       Int    @map("note_count")
+  notebookCount   Int    @map("notebook_count")
+  tagCount        Int    @map("tag_count")
+  sharedNoteCount Int    @map("shared_note_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("limits")
+}
+
+model Notebook {
+  id        String   @id @default(cuid())
+  name      String
+  ownerId   String   @map("owner_id")
+  notes     Note[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [ownerId], references: [id])
+
+  @@map("notebooks")
+}
+
+model Note {
+  id          String       @id @default(cuid())
+  cover       String?
+  title       String
+  content     String
+  ownerId     String       @map("owner_id")
+  notebookId  String       @map("notebook_id")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  user        User         @relation(fields: [ownerId], references: [id])
+  tags        Tag[]
+  notebook    Notebook     @relation(fields: [notebookId], references: [id])
+  sharedNotes SharedNote[]
+
+  @@map("notes")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  notes     Note[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tags")
+}
+
+enum SharedNoteRole {
+  EDITOR
+  VIEWER
+}
+
+model SharedNote {
+  id         String         @id @default(cuid())
+  noteId     String         @map("note_id")
+  userId     String         @map("user_id")
+  permission SharedNoteRole @default(VIEWER)
+  note       Note           @relation(fields: [noteId], references: [id])
+  user       User           @relation(fields: [userId], references: [id])
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+
+  @@map("shared_notes")
+}
