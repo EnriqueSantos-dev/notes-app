@@ -1,0 +1,20 @@
+{
+  "extends": [
+    "@notes-app/ts-config/base.json",
+    "@notes-app/ts-config/next.json"
+  ],
+  "compilerOptions": {
+    "noEmit": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

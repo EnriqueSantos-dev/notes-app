@@ -1,0 +1,3 @@
+{
+  "extends": ["@notes-app/ts-config/base.json"]
+}
