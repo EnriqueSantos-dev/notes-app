@@ -1,7 +1,8 @@
 {
-  "name": "web",
+  "name": "@notes-app/web",
   "version": "0.1.0",
   "private": true,
+  "author": "Enrique Santos",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
